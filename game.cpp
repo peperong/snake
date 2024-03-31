@@ -28,6 +28,8 @@ int snaketail[20] ;
 int directions[20];
 double movetimer = 0.0;
 int _direction = 0;
+
+void game();
 void drawBoard(void) {
     int i, j;
     for(i = 0; i < 20; i ++) {
@@ -117,10 +119,10 @@ void handleInput() {
             direction = DOWN;
     }
     if (console::key(console::K_ESC)) {
-        console::clear();
+      //  console::clear();
         console::draw(BOARD_SIZE/2-5, BOARD_SIZE /2, "YOU LOSE!");
         console::draw(BOARD_SIZE/2-5, BOARD_SIZE /2+1, "Try again? (Enter)");
-        console::Key(console::K_ENTER);
+        console::Key(console::K_ESC);
         console::init;
         console::wait();
         exit(0);
@@ -183,6 +185,40 @@ bool checkCollision() {
 bool gameOver() {
     return checkCollision();
 }
+void resetBoard() {
+  snakeLength = 1;
+  snake[0] = BOARD_SIZE / 2;
+  snaketail[0] = BOARD_SIZE / 2;
+  direction = RIGHT;
+  score = 0;
+  drawApple();
+}
+void Win() {
+  console::draw(BOARD_SIZE/2 - 4, BOARD_SIZE/2 - 1, "YOU WIN!");
+  console::draw(BOARD_SIZE/2 - 9, BOARD_SIZE/2, "Try Again? (Enter)");
+  while (true) {
+    console::wait();
+    if (console::key(console::K_ESC))
+      exit(0);
+    if (console::key(console::K_ENTER)) {
+        resetBoard();
+        game();
+    }
+  }
+}
+void Lose() {
+  console::draw(BOARD_SIZE/2 - 4, BOARD_SIZE/2 - 1, "YOU LOSE!");
+  console::draw(BOARD_SIZE/2 - 9, BOARD_SIZE/2, "Try Again? (Enter)");
+  while (true) {
+    console::wait();
+    if (console::key(console::K_ESC))
+      exit(0);
+    if (console::key(console::K_ENTER)) {
+      resetBoard();
+      game();
+    }
+  }
+}
 
 void game() {
    respawnApple();
@@ -201,9 +237,11 @@ void game() {
     drawApple();
     drawSnake();
     if(gameOver()) {
-
-        break;
-        }
+        Lose();
+    }
+    else if (snakeLength == (BOARD_SIZE - 2) * (BOARD_SIZE - 2)) {
+        Win();
+    }
     // 화면을 갱신하고 다음 프레임까지 대기한다.
     for (int i = 0; i < MOVE_DELAY; i++)
         console::wait();
